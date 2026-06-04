@@ -1,0 +1,12 @@
+{
+  "name": "netprobe-ui-assets",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build:css": "tailwindcss -i web/static/css/input.css -o web/static/css/tailwind.css --minify"
+  },
+  "devDependencies": {
+    "@fontsource/inter": "^5.2.8",
+    "tailwindcss": "^3.4.17"
+  }
+}

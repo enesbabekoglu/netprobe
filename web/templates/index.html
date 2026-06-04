@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>NetProbe Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.css') }}?v={{ asset_version }}">
+  </head>
+  <body>
+    <main class="mx-auto min-h-screen max-w-7xl px-5 py-6">
+      <header class="mb-6 flex flex-col gap-4 border-b border-neutral-200 pb-5 md:flex-row md:items-end md:justify-between">
+        <div>
+          <p class="np-label">Bilgisayar Aglari Donem Projesi</p>
+          <h1 class="mt-2 text-3xl font-bold tracking-normal text-neutral-950">NetProbe</h1>
+          <p class="mt-2 max-w-2xl text-sm leading-6 text-neutral-600">UDP tabanli guvenilir dosya aktarimi, trafik izleme ve performans analiz paneli.</p>
+        </div>
+        <div class="flex items-center gap-2 text-sm">
+          <span id="serverStatus" class="rounded-md border border-neutral-300 px-3 py-2 font-semibold text-neutral-900">UDP hazirlaniyor</span>
+          <span id="streamStatus" class="rounded-md border border-neutral-300 px-3 py-2 font-semibold text-neutral-900">WS baglaniyor</span>
+          <span id="busyText" class="rounded-md bg-neutral-100 px-3 py-2 text-neutral-600">Hazir</span>
+        </div>
+      </header>
+
+      <section class="mb-6 grid gap-3 md:grid-cols-5">
+        <div class="np-card p-4">
+          <p class="np-label">Durum</p>
+          <p id="statusMetric" class="mt-2 text-2xl font-bold">-</p>
+        </div>
+        <div class="np-card p-4">
+          <p class="np-label">Goodput</p>
+          <p id="goodputMetric" class="mt-2 text-2xl font-bold">-</p>
+        </div>
+        <div class="np-card p-4">
+          <p class="np-label">Sure</p>
+          <p id="timeMetric" class="mt-2 text-2xl font-bold">-</p>
+        </div>
+        <div class="np-card p-4">
+          <p class="np-label">Retransmission</p>
+          <p id="retryMetric" class="mt-2 text-2xl font-bold">-</p>
+        </div>
+        <div class="np-card p-4">
+          <p class="np-label">SHA-256</p>
+          <p id="hashMetric" class="mt-2 truncate text-sm font-semibold">-</p>
+        </div>
+      </section>
+
+      <section class="grid gap-6 lg:grid-cols-[380px_1fr]">
+        <div class="space-y-6">
+          <section class="np-card p-4">
+            <div class="mb-4 flex items-center justify-between">
+              <h2 class="text-base font-bold">Transfer Paneli</h2>
+              <span class="text-xs text-neutral-500">Selective Repeat</span>
+            </div>
+            <div class="space-y-3">
+              <label class="block">
+                <span class="np-label">Dosya</span>
+                <select id="sample" class="np-input mt-1"></select>
+              </label>
+              <div class="rounded-md border border-dashed border-neutral-300 p-3">
+                <span class="np-label">Kendi dosyani yukle</span>
+                <div class="mt-2 grid gap-2">
+                  <input id="uploadFile" class="block w-full text-sm text-neutral-700 file:mr-3 file:rounded-md file:border file:border-neutral-300 file:bg-white file:px-3 file:py-2 file:text-sm file:font-semibold file:text-neutral-950 hover:file:bg-neutral-100" type="file">
+                  <button id="uploadButton" data-action="upload" class="np-button-secondary w-full" type="button">Dosyayi Listeye Ekle</button>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <label class="block">
+                  <span class="np-label">Payload</span>
+                  <input id="payloadSize" class="np-input mt-1" type="number" value="1024" min="128">
+                </label>
+                <label class="block">
+                  <span class="np-label">Timeout</span>
+                  <input id="timeout" class="np-input mt-1" type="number" value="0.5" min="0.05" step="0.05">
+                </label>
+                <label class="block">
+                  <span class="np-label">Window</span>
+                  <input id="windowSize" class="np-input mt-1" type="number" value="8" min="1">
+                </label>
+                <label class="block">
+                  <span class="np-label">Max retry</span>
+                  <input id="maxRetries" class="np-input mt-1" type="number" value="5" min="0">
+                </label>
+                <label class="block">
+                  <span class="np-label">Loss rate</span>
+                  <input id="lossRate" class="np-input mt-1" type="number" value="0" min="0" max="1" step="0.01">
+                </label>
+                <label class="block">
+                  <span class="np-label">Delay ms</span>
+                  <input id="delayMs" class="np-input mt-1" type="number" value="0" min="0" step="1">
+                </label>
+              </div>
+              <button id="transferButton" data-action="transfer" class="np-button w-full">Transfer Baslat</button>
+              <p id="lastMessage" class="min-h-5 text-sm text-neutral-600"></p>
+            </div>
+          </section>
+
+          <section class="np-card p-4">
+            <h2 class="mb-4 text-base font-bold">Deney ve Analiz</h2>
+            <div class="space-y-3">
+              <label class="block">
+                <span class="np-label">Profil</span>
+                <select id="profile" class="np-input mt-1">
+                  <option value="quick">Quick</option>
+                  <option value="full">Full</option>
+                </select>
+              </label>
+              <div class="grid grid-cols-2 gap-3">
+                <button id="experimentButton" data-action="experiments" class="np-button">Deneyleri Calistir</button>
+                <button id="analysisButton" data-action="analysis" class="np-button-secondary">Analiz Uret</button>
+              </div>
+              <a id="reportLink" href="/docs/rapor-taslagi.md" class="block rounded-md border border-neutral-300 px-3 py-2 text-center text-sm font-semibold text-neutral-950 hover:bg-neutral-100">Rapor Taslagini Ac</a>
+            </div>
+          </section>
+        </div>
+
+        <div class="space-y-6">
+          <section class="np-card overflow-hidden">
+            <div class="flex items-center justify-between border-b border-neutral-200 px-4 py-3">
+              <h2 class="text-base font-bold">Canli Trafik Logu</h2>
+              <span id="eventCount" class="text-xs text-neutral-500">0 olay</span>
+            </div>
+            <div class="max-h-96 overflow-auto">
+              <table class="w-full text-left">
+                <thead class="sticky top-0 bg-white text-xs uppercase text-neutral-500">
+                  <tr>
+                    <th class="px-3 py-2 font-semibold">Zaman</th>
+                    <th class="px-3 py-2 font-semibold">Rol</th>
+                    <th class="px-3 py-2 font-semibold">Olay</th>
+                    <th class="px-3 py-2 font-semibold">Detay</th>
+                  </tr>
+                </thead>
+                <tbody id="eventBody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section>
+            <div class="mb-3 flex items-center justify-between">
+              <h2 class="text-base font-bold">Analiz Grafikleri</h2>
+              <span class="text-xs text-neutral-500">outputs/analysis/charts</span>
+            </div>
+            <div id="chartGrid" class="grid gap-4 xl:grid-cols-2"></div>
+          </section>
+        </div>
+      </section>
+    </main>
+    <script src="{{ url_for('static', filename='js/app.js') }}?v={{ asset_version }}"></script>
+  </body>
+</html>
