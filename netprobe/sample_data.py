@@ -1,3 +1,5 @@
+"""Aktarım ve deneyler için deterministik örnek ikili dosyalar."""
+
 from __future__ import annotations
 
 import random

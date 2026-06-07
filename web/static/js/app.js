@@ -128,7 +128,6 @@ function applyStatus(data) {
   renderEvents(data.events || []);
   renderCharts(state.charts);
   renderServer(data.server || {});
-  $("reportLink").href = "/docs/rapor-taslagi.md";
 }
 
 function setStreamStatus(label, active = false) {

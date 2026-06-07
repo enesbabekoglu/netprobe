@@ -1,3 +1,5 @@
+"""Proje yolları, varsayılanlar ve aktarım yapılandırması doğrulaması."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

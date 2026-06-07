@@ -1,3 +1,5 @@
+"""NetProbe kablo formatı: ikili paket başlığı, CRC32 checksum ve dosya yardımcıları."""
+
 from __future__ import annotations
 
 import enum
@@ -14,12 +16,13 @@ from typing import Any
 
 MAGIC = b"NTPB"
 VERSION = 1
+# Başlık alanları: magic(4) sürüm(1) tip(1) bayrak(2) oturum(16) seq(4) total(4) payload_uz(4) crc32(4)
 HEADER = struct.Struct("!4sBBH16sIIHI")
 MAX_PAYLOAD_SIZE = 60_000
 
 
 class ProtocolError(ValueError):
-    """Raised when a datagram is not a valid NetProbe packet."""
+    """Datagram geçerli bir NetProbe paketi değilse fırlatılır."""
 
 
 class PacketType(enum.IntEnum):

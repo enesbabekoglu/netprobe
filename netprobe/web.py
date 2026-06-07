@@ -1,3 +1,5 @@
+"""Flask paneli: gömülü UDP sunucusu, aktarım, deneyler ve canlı WebSocket logları."""
+
 from __future__ import annotations
 
 import argparse
@@ -24,6 +26,8 @@ UPLOAD_DIR = DATA_DIR / "uploaded_files"
 
 
 class WebServerManager:
+    """Panel aktarım API'sinin kullandığı arka plan UDP alıcısını çalıştırır."""
+
     def __init__(self) -> None:
         self.port = find_free_udp_port()
         self.server = UDPServer(
@@ -85,8 +89,6 @@ def build_status_payload() -> dict[str, Any]:
         "events": events,
         "charts": charts,
         "results_exists": results_path.exists(),
-        "report_path": str(PROJECT_ROOT / "docs" / "rapor-taslagi.md"),
-        "deliverable_path": str(PROJECT_ROOT / "dist" / "netprobe-deliverable.zip"),
         "updated_at": time.time(),
     }
 
@@ -198,10 +200,6 @@ def create_app() -> Flask:
     @app.get("/outputs/<path:filename>")
     def outputs(filename: str):
         return send_from_directory(OUTPUT_DIR, filename)
-
-    @app.get("/docs/<path:filename>")
-    def docs(filename: str):
-        return send_from_directory(PROJECT_ROOT / "docs", filename)
 
     return app
 

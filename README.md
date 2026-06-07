@@ -6,11 +6,8 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-06B6D4?style=flat&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?style=flat&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![pytest](https://img.shields.io/badge/pytest-8.x-0A9EDC?style=flat&logo=pytest&logoColor=white)](https://pytest.org/)
-[![License](https://img.shields.io/badge/License-Academic-4B5563?style=flat)](https://github.com/enesbabekoglu/netprobe)
 
 UDP üzerinde güvenilir dosya aktarımı, trafik izleme ve ağ performans analizi platformu.
-
-**Bursa Teknik Üniversitesi** · Bilgisayar Mühendisliği · Bilgisayar Ağları Dönem Projesi
 
 ## Ekip
 
@@ -104,15 +101,6 @@ python3 -m netprobe.analysis build
 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest
 ```
 
-## Teslim paketi
-
-```bash
-python3 -m netprobe.experiments run --profile quick
-python3 -m netprobe.deliver
-```
-
-Çıktı: `dist/netprobe-deliverable.zip`
-
 ## Proje yapısı
 
 ```
@@ -131,7 +119,7 @@ web/
 ├── templates/       # HTML arayüz
 └── static/          # CSS, JS, fontlar
 
-docs/                # Rapor taslağı ve teknik dokümantasyon
+docs/                # Mimari ve protokol dokümantasyonu
 tests/               # Birim ve entegrasyon testleri
 ```
 

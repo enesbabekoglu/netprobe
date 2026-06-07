@@ -1,3 +1,5 @@
+"""Güvenilir UDP goodput karşılaştırması için TCP akış taban ölçümü."""
+
 from __future__ import annotations
 
 import json

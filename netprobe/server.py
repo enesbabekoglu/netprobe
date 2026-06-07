@@ -1,3 +1,5 @@
+"""Dosya parçalarını birleştiren, ACK gönderen ve SHA-256 doğrulayan UDP sunucusu."""
+
 from __future__ import annotations
 
 import argparse
@@ -168,6 +170,7 @@ class UDPServer:
             self._send_error(packet.session_id, address, "unknown session")
             return
 
+        # Yinelenen DATA: parça tamponuna yazmadan tekrar ACK gönder
         if packet.sequence in session.chunks:
             session.duplicates += 1
             self.logger.log(

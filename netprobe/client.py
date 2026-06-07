@@ -1,3 +1,5 @@
+"""Seçici tekrarlı kayan pencere ve yeniden gönderimli güvenilir UDP istemcisi."""
+
 from __future__ import annotations
 
 import argparse
@@ -96,6 +98,7 @@ class ReliableUDPClient:
                     "START packet was not acknowledged",
                 )
 
+            # Kayan pencere: base = en eski onaysız seq, next_sequence = gönderilecek sıradaki seq
             acked: set[int] = set()
             sent_at: dict[int, float] = {}
             retry_count: dict[int, int] = {sequence: 0 for sequence in range(total_packets)}
@@ -162,6 +165,7 @@ class ReliableUDPClient:
                             str(error_payload.get("message", "server error")),
                         )
 
+                # Yapılandırılan timeout'u aşan uçuştaki paketleri yeniden gönder
                 now = time.perf_counter()
                 for sequence in range(base, min(next_sequence, total_packets)):
                     if sequence in acked:

@@ -1,3 +1,5 @@
+"""Deney CSV sonuçlarından SVG grafik ve Markdown özet üretimi."""
+
 from __future__ import annotations
 
 import argparse
@@ -242,27 +244,15 @@ def _build_summary(rows: list[dict[str, str]], generated: list[Path]) -> str:
     chart_list = "\n".join(f"- `{path}`" for path in generated)
     return f"""# NetProbe Deney Analizi
 
-Bu dosya `python -m netprobe.analysis build` komutu ile otomatik üretilmiştir. Grafikler Word raporuna aktarılmak üzere `outputs/analysis/charts/` klasöründe SVG olarak tutulur.
+Otomatik üretim: `python -m netprobe.analysis build`
 
-## Genel Özet
+## Özet
 
-- Başarılı deney sayısı: {len(successful)} / {len(rows)}
+- Başarılı deney: {len(successful)} / {len(rows)}
 - Ortalama goodput: {avg_goodput:.3f} Mbps
 - Ortalama retransmission rate: {avg_retrans:.3f}
 
-## Teknik Yorumlar
-
-Paket boyutu arttıkça header yükü dosya verisine oranla azalır. Bu nedenle orta ve büyük payload değerlerinde goodput genellikle yükselir; ancak çok büyük paketlerde tek kaybın yeniden aktarım maliyeti arttığı için kayıplı ortamda kazanç sınırlanabilir.
-
-Timeout değeri küçük seçildiğinde ACK gecikmeleri gerçek paket kaybı gibi algılanabilir ve gereksiz retransmission oluşabilir. Timeout çok büyük seçildiğinde ise gerçek kayıplar geç fark edilir; bu da completion time değerini artırır.
-
-Yapay kayıp oranı arttıkça sender aynı sequence number için yeniden gönderim yapmak zorunda kalır. Bu durum bytes_on_wire ve completion_time değerlerini artırırken goodput değerini düşürür.
-
-Dosya boyutu büyüdükçe başlangıç/bitiş kontrol paketlerinin etkisi azalır. Bu nedenle büyük dosyalarda protokol daha verimli görünür; fakat toplam aktarım süresi doğal olarak artar.
-
-TCP karşılaştırması, işletim sisteminin olgun TCP kontrol mekanizmalarına karşı uygulama katmanında yazılan reliable UDP protokolünün davranışını yorumlamak için eklenmiştir. NetProbe'un amacı TCP'yi geçmek değil; UDP üzerinde ACK, timeout ve retransmission mekanizmalarının nasıl kurulduğunu göstermektir.
-
-## Üretilen Grafikler
+## Grafikler
 
 {chart_list}
 """

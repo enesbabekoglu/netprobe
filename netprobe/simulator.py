@@ -1,3 +1,5 @@
+"""İstemci tarafı ağ bozulması: olasılıksal kayıp ve isteğe bağlı gecikme/sapma."""
+
 from __future__ import annotations
 
 import random

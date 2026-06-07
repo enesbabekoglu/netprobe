@@ -1,3 +1,5 @@
+"""Aktarım sonucu modeli ile aktarım hızı, goodput ve kayıp oranı hesapları."""
+
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass

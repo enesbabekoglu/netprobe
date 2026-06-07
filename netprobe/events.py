@@ -1,3 +1,5 @@
+"""İstemci, sunucu ve panel canlı akışları için JSONL olay günlüğü."""
+
 from __future__ import annotations
 
 import json
