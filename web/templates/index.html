@@ -10,36 +10,63 @@
     <main class="mx-auto min-h-screen max-w-7xl px-5 py-6">
       <header class="mb-6 flex flex-col gap-4 border-b border-neutral-200 pb-5 md:flex-row md:items-end md:justify-between">
         <div>
-          <p class="np-label">Bilgisayar Aglari Donem Projesi</p>
+          <p class="np-label flex items-center gap-2">
+            <span data-icon="brand" class="np-icon"></span>
+            Bilgisayar Ağları Dönem Projesi
+          </p>
           <h1 class="mt-2 text-3xl font-bold tracking-normal text-neutral-950">NetProbe</h1>
-          <p class="mt-2 max-w-2xl text-sm leading-6 text-neutral-600">UDP tabanli guvenilir dosya aktarimi, trafik izleme ve performans analiz paneli.</p>
+          <p class="mt-2 max-w-2xl text-sm leading-6 text-neutral-600">UDP tabanlı güvenilir dosya aktarımı, trafik izleme ve performans analiz paneli.</p>
         </div>
         <div class="flex items-center gap-2 text-sm">
-          <span id="serverStatus" class="rounded-md border border-neutral-300 px-3 py-2 font-semibold text-neutral-900">UDP hazirlaniyor</span>
-          <span id="streamStatus" class="rounded-md border border-neutral-300 px-3 py-2 font-semibold text-neutral-900">WS baglaniyor</span>
-          <span id="busyText" class="rounded-md bg-neutral-100 px-3 py-2 text-neutral-600">Hazir</span>
+          <span id="serverStatus" class="inline-flex items-center gap-2 rounded-md border border-neutral-300 px-3 py-2 font-semibold text-neutral-900">
+            <span data-icon="server" class="np-icon"></span>
+            UDP hazırlanıyor
+          </span>
+          <span id="streamStatus" class="inline-flex items-center gap-2 rounded-md border border-neutral-300 px-3 py-2 font-semibold text-neutral-900">
+            <span data-icon="signal" class="np-icon"></span>
+            WS bağlanıyor
+          </span>
+          <span id="busyText" class="inline-flex items-center gap-2 rounded-md bg-neutral-100 px-3 py-2 text-neutral-600">
+            <span id="busyIcon" data-icon="status" class="np-icon"></span>
+            Hazır
+          </span>
         </div>
       </header>
 
       <section class="mb-6 grid gap-3 md:grid-cols-5">
         <div class="np-card p-4">
-          <p class="np-label">Durum</p>
+          <p class="np-label flex items-center gap-2">
+            <span data-icon="status" class="np-icon"></span>
+            Durum
+          </p>
           <p id="statusMetric" class="mt-2 text-2xl font-bold">-</p>
         </div>
         <div class="np-card p-4">
-          <p class="np-label">Goodput</p>
+          <p class="np-label flex items-center gap-2">
+            <span data-icon="goodput" class="np-icon"></span>
+            Goodput
+          </p>
           <p id="goodputMetric" class="mt-2 text-2xl font-bold">-</p>
         </div>
         <div class="np-card p-4">
-          <p class="np-label">Sure</p>
+          <p class="np-label flex items-center gap-2">
+            <span data-icon="time" class="np-icon"></span>
+            Süre
+          </p>
           <p id="timeMetric" class="mt-2 text-2xl font-bold">-</p>
         </div>
         <div class="np-card p-4">
-          <p class="np-label">Retransmission</p>
+          <p class="np-label flex items-center gap-2">
+            <span data-icon="retry" class="np-icon"></span>
+            Retransmission
+          </p>
           <p id="retryMetric" class="mt-2 text-2xl font-bold">-</p>
         </div>
         <div class="np-card p-4">
-          <p class="np-label">SHA-256</p>
+          <p class="np-label flex items-center gap-2">
+            <span data-icon="hash" class="np-icon"></span>
+            SHA-256
+          </p>
           <p id="hashMetric" class="mt-2 truncate text-sm font-semibold">-</p>
         </div>
       </section>
@@ -48,7 +75,10 @@
         <div class="space-y-6">
           <section class="np-card p-4">
             <div class="mb-4 flex items-center justify-between">
-              <h2 class="text-base font-bold">Transfer Paneli</h2>
+              <h2 class="flex items-center gap-2 text-base font-bold">
+                <span data-icon="file" class="np-icon"></span>
+                Transfer Paneli
+              </h2>
               <span class="text-xs text-neutral-500">Selective Repeat</span>
             </div>
             <div class="space-y-3">
@@ -57,10 +87,16 @@
                 <select id="sample" class="np-input mt-1"></select>
               </label>
               <div class="rounded-md border border-dashed border-neutral-300 p-3">
-                <span class="np-label">Kendi dosyani yukle</span>
+                <span class="np-label flex items-center gap-2">
+                  <span data-icon="upload" class="np-icon"></span>
+                  Kendi dosyanı yükle
+                </span>
                 <div class="mt-2 grid gap-2">
                   <input id="uploadFile" class="block w-full text-sm text-neutral-700 file:mr-3 file:rounded-md file:border file:border-neutral-300 file:bg-white file:px-3 file:py-2 file:text-sm file:font-semibold file:text-neutral-950 hover:file:bg-neutral-100" type="file">
-                  <button id="uploadButton" data-action="upload" class="np-button-secondary w-full" type="button">Dosyayi Listeye Ekle</button>
+                  <button id="uploadButton" data-action="upload" class="np-button-secondary w-full" type="button">
+                    <span data-icon="add" class="np-icon"></span>
+                    Dosyayı Listeye Ekle
+                  </button>
                 </div>
               </div>
               <div class="grid grid-cols-2 gap-3">
@@ -89,13 +125,19 @@
                   <input id="delayMs" class="np-input mt-1" type="number" value="0" min="0" step="1">
                 </label>
               </div>
-              <button id="transferButton" data-action="transfer" class="np-button w-full">Transfer Baslat</button>
+              <button id="transferButton" data-action="transfer" class="np-button w-full">
+                <span data-icon="play" class="np-icon"></span>
+                Transfer Başlat
+              </button>
               <p id="lastMessage" class="min-h-5 text-sm text-neutral-600"></p>
             </div>
           </section>
 
           <section class="np-card p-4">
-            <h2 class="mb-4 text-base font-bold">Deney ve Analiz</h2>
+            <h2 class="mb-4 flex items-center gap-2 text-base font-bold">
+              <span data-icon="experiment" class="np-icon"></span>
+              Deney ve Analiz
+            </h2>
             <div class="space-y-3">
               <label class="block">
                 <span class="np-label">Profil</span>
@@ -105,10 +147,19 @@
                 </select>
               </label>
               <div class="grid grid-cols-2 gap-3">
-                <button id="experimentButton" data-action="experiments" class="np-button">Deneyleri Calistir</button>
-                <button id="analysisButton" data-action="analysis" class="np-button-secondary">Analiz Uret</button>
+                <button id="experimentButton" data-action="experiments" class="np-button">
+                  <span data-icon="experiment" class="np-icon"></span>
+                  Deneyleri Çalıştır
+                </button>
+                <button id="analysisButton" data-action="analysis" class="np-button-secondary">
+                  <span data-icon="analysis" class="np-icon"></span>
+                  Analiz Üret
+                </button>
               </div>
-              <a id="reportLink" href="/docs/rapor-taslagi.md" class="block rounded-md border border-neutral-300 px-3 py-2 text-center text-sm font-semibold text-neutral-950 hover:bg-neutral-100">Rapor Taslagini Ac</a>
+              <a id="reportLink" href="/docs/rapor-taslagi.md" class="inline-flex w-full items-center justify-center gap-2 rounded-md border border-neutral-300 px-3 py-2 text-center text-sm font-semibold text-neutral-950 hover:bg-neutral-100">
+                <span data-icon="report" class="np-icon"></span>
+                Rapor Taslağını Aç
+              </a>
             </div>
           </section>
         </div>
@@ -116,7 +167,10 @@
         <div class="space-y-6">
           <section class="np-card overflow-hidden">
             <div class="flex items-center justify-between border-b border-neutral-200 px-4 py-3">
-              <h2 class="text-base font-bold">Canli Trafik Logu</h2>
+              <h2 class="flex items-center gap-2 text-base font-bold">
+                <span data-icon="log" class="np-icon"></span>
+                Canlı Trafik Logu
+              </h2>
               <span id="eventCount" class="text-xs text-neutral-500">0 olay</span>
             </div>
             <div class="max-h-96 overflow-auto">
@@ -136,7 +190,10 @@
 
           <section>
             <div class="mb-3 flex items-center justify-between">
-              <h2 class="text-base font-bold">Analiz Grafikleri</h2>
+              <h2 class="flex items-center gap-2 text-base font-bold">
+                <span data-icon="charts" class="np-icon"></span>
+                Analiz Grafikleri
+              </h2>
               <span class="text-xs text-neutral-500">outputs/analysis/charts</span>
             </div>
             <div id="chartGrid" class="grid gap-4 xl:grid-cols-2"></div>
@@ -144,6 +201,7 @@
         </div>
       </section>
     </main>
+    <script src="{{ url_for('static', filename='js/icons.js') }}?v={{ asset_version }}"></script>
     <script src="{{ url_for('static', filename='js/app.js') }}?v={{ asset_version }}"></script>
   </body>
 </html>

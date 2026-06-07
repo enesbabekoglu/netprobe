@@ -36,7 +36,65 @@ Ek olarak, yalnızca çalışan bir dosya aktarımı yeterli değildir. Aktarım
 
 **Görsel Yerleşimi:** Bu bölümde görsel zorunlu değildir. İstenirse UDP ve TCP'nin temel farklarını gösteren küçük bir karşılaştırma tablosu eklenebilir. Tablo metinsel olacağı için Word içinde elle hazırlanabilir.
 
-## 3. Sistem Mimarisi
+## 3. Kullanılan Teknolojiler
+
+NetProbe, ağ protokolü geliştirme, ölçüm ve demo sunumu için birbirini tamamlayan açık kaynak teknolojilerle geliştirilmiştir. Proje tek bir monolitik uygulama yerine modüler Python paketleri, yerel web arayüzü ve otomatik analiz çıktıları üzerine kuruludur.
+
+### 3.1. Geliştirme Dili ve Çalışma Ortamı
+
+| Teknoloji | Kullanım Amacı |
+| --- | --- |
+| Python 3 | UDP istemci/sunucu, protokol, deney, analiz ve web backend geliştirme |
+| Python `socket` modülü | UDP ve TCP tabanlı ağ iletişimi |
+| `threading` | UDP sunucusunun arka planda çalıştırılması |
+| `dataclasses`, `pathlib`, `json`, `csv` | Yapılandırma, dosya yönetimi ve sonuç üretimi |
+| Git / GitHub | Sürüm kontrolü ve proje teslimi |
+
+### 3.2. Ağ, Protokol ve Güvenilirlik Katmanı
+
+| Teknoloji / Yöntem | Kullanım Amacı |
+| --- | --- |
+| UDP (User Datagram Protocol) | Bağlantısız temel taşıma katmanı |
+| Özel NetProbe uygulama protokolü | START, DATA, ACK, END, RESULT, ERROR paket tipleri |
+| Selective Repeat sliding window | Eşzamanlı paket gönderimi ve ACK takibi |
+| CRC32 checksum | Paket payload bütünlük kontrolü |
+| SHA-256 | Dosya düzeyinde bütünlük doğrulaması |
+| Yapay loss/delay simülatörü | Kontrollü paket kaybı ve gecikme deneyleri |
+| TCP baseline karşılaştırması | İşletim sistemi TCP davranışı ile kıyaslama |
+
+### 3.3. Web Paneli ve Kullanıcı Arayüzü
+
+| Teknoloji | Kullanım Amacı |
+| --- | --- |
+| Flask 3.x | Web dashboard backend ve REST API |
+| Flask-Sock | Canlı log akışı için WebSocket (`/ws/events`) |
+| HTML5 + Vanilla JavaScript | İstemci tarafı panel mantığı ve API çağrıları |
+| Tailwind CSS 3.x | Yerel, derlenmiş ve minimal arayüz stilleri |
+| Inter font (`@fontsource/inter`) | Türkçe karakter destekli yerel tipografi |
+| react-icons (Heroicons / `hi2`) | Panel ikonlarının SVG olarak üretilmesi |
+| Node.js / npm | CSS, font ve ikon asset derleme süreci |
+
+Web arayüzü demo sırasında CDN veya harici internet bağlantısı gerektirmeyecek şekilde tasarlanmıştır. Üretilen CSS, font ve ikon dosyaları `web/static/` altında yerel olarak sunulur.
+
+### 3.4. Veri Kaydı, Analiz ve Görselleştirme
+
+| Teknoloji / Format | Kullanım Amacı |
+| --- | --- |
+| JSONL | Client/server olay kayıtları |
+| CSV / JSON | Deney sonuçlarının özetlenmesi |
+| Python tabanlı SVG üretimi | Performans grafiklerinin otomatik oluşturulması |
+| Markdown | Rapor taslağı ve analiz özeti |
+
+### 3.5. Test ve Teslim
+
+| Teknoloji | Kullanım Amacı |
+| --- | --- |
+| pytest | Protokol ve aktarım davranışı testleri |
+| ZIP teslim paketi | Kaynak kod, çıktılar, grafikler ve dokümantasyonun paketlenmesi |
+
+**Görsel Yerleşimi:** Bu bölümde görsel zorunlu değildir. İstenirse kullanılan teknolojileri özetleyen sade bir tablo Word'e aktarılabilir. Tablo bu bölümdeki alt başlıklardan türetilebilir.
+
+## 4. Sistem Mimarisi
 
 NetProbe dört ana katmandan oluşur. Birinci katman UDP istemci ve sunucu bileşenleridir. İstemci dosyayı paketlere böler, paketleri pencere mantığı ile gönderir ve ACK yanıtlarını takip eder. Sunucu gelen paketleri session id ve sequence number değerlerine göre saklar, duplicate paketleri ayıklar ve aktarım sonunda dosyayı yeniden oluşturur.
 
@@ -48,7 +106,7 @@ Dördüncü katman demo ve kullanım arayüzüdür. Flask tabanlı web paneli, y
 
 **Görsel Yerleşimi:** Bu bölümün ortasına mimari diyagram eklenmelidir. Diyagramda solda "Client", ortada "Reliable UDP Protocol + Loss/Delay Simulator", sağda "Server" bulunmalıdır. Alt tarafta "JSONL Logs", "Metrics CSV/JSON", "Analysis Charts" ve "Web Dashboard" kutuları yer almalıdır. Önerilen başlık: "Şekil 2. NetProbe sistem mimarisi".
 
-## 4. Protokol Tasarımı
+## 5. Protokol Tasarımı
 
 NetProbe protokolü, UDP datagramları içinde taşınan özel bir uygulama katmanı paket formatı kullanır. Her paket sabit uzunluklu bir header ve değişken uzunluklu payload alanından oluşur. Header alanı paketin türünü, ait olduğu session bilgisini, sırasını ve payload bütünlüğünü taşır.
 
@@ -68,7 +126,7 @@ Aktarım START paketi ile başlar. START payload'u dosya adı, dosya boyutu, SHA
 
 **Görsel Yerleşimi:** Paket formatı tablosunun hemen altına sequence/ACK akış diyagramı eklenmelidir. Diyagramda START, ACK, DATA[0..n], ACK[0..n], END ve RESULT sırası gösterilmelidir. Önerilen başlık: "Şekil 3. NetProbe paket ve ACK akışı".
 
-## 5. Güvenilir Aktarım Mekanizması
+## 6. Güvenilir Aktarım Mekanizması
 
 NetProbe, varsayılan olarak Selective Repeat sliding window yaklaşımını kullanır. Gönderici aynı anda pencere boyutu kadar paketi beklemede tutabilir. Varsayılan pencere boyutu 8'dir. Bir paket için ACK geldiğinde yalnızca ilgili sequence number onaylanır; diğer paketler bağımsız olarak beklemeye devam eder. Bu yapı, stop-and-wait yaklaşımına göre daha yüksek verim sağlar.
 
@@ -87,11 +145,9 @@ Duplicate paketler sunucu tarafında sequence number ile tespit edilir. Sunucu a
 
 **Görsel Yerleşimi:** Bu bölümde timeout ve retransmission zaman çizelgesi kullanılmalıdır. İlk çizgide DATA packet gönderimi, ACK gelmemesi, timeout ve retransmission gösterilmelidir. İkinci küçük çizgide duplicate DATA gelişi ve tekrar ACK gönderimi gösterilmelidir. Önerilen başlık: "Şekil 4. Timeout, retransmission ve duplicate paket davranışı".
 
-## 6. Gerçekleme Detayları
+## 7. Gerçekleme, Deney ve Ölçüm
 
-Proje Python ile modüler şekilde geliştirilmiştir. `protocol.py` paket kodlama ve çözme işlemlerini, `client.py` güvenilir UDP istemcisini, `server.py` UDP sunucusunu, `simulator.py` yapay loss/delay davranışını, `metrics.py` performans metriklerini, `experiments.py` karşılaştırmalı deneyleri, `analysis.py` grafik üretimini, `tcp_compare.py` TCP baseline aktarımını ve `web.py` Flask demo panelini içerir.
-
-Komut satırı kullanımı şu şekildedir:
+Proje Python modülleriyle geliştirilmiştir: `protocol`, `client`, `server`, `simulator`, `metrics`, `experiments`, `analysis`, `tcp_compare` ve `web`. Aktarım olayları JSONL olarak kaydedilir; web paneli transfer, deney, metrik, canlı log ve grafikleri tek ekranda sunar.
 
 ```bash
 python3 -m netprobe.server --host 127.0.0.1 --port 9999
@@ -101,154 +157,36 @@ python3 -m netprobe.analysis build
 python3 -m netprobe.web --port 5000
 ```
 
-Web arayüzü Flask backend, vanilla JavaScript, yerel Tailwind CSS ve yerel Inter font dosyalarıyla hazırlanmıştır. Böylece demo sırasında CDN veya internet bağlantısına ihtiyaç duyulmaz. Arayüz siyah, beyaz ve gri tonlarıyla minimal tutulmuştur. Transfer paneli, deney paneli, metrik kartları, canlı log tablosu ve analiz grafikleri aynı ekranda gösterilir.
+Deneyler loopback üzerinde çalıştırılmış; paket kaybı yapay simülatör ile kontrol edilmiştir. Ölçülen temel metrikler: throughput, goodput, completion time, loss rate, retransmission rate ve RTT.
 
-**Görsel Yerleşimi:** Bu bölümde iki görsel önerilir. İlk görsel proje modül yapısı diyagramıdır; modüller ve görevleri gösterilmelidir. İkinci görsel başarılı CLI aktarım ekran görüntüsüdür. CLI ekran görüntüsünde status, session id, SHA-256, destination, throughput, goodput ve retransmission satırları görünmelidir.
-
-## 7. Trafik İzleme ve Olay Kayıtları
-
-NetProbe, aktarım sürecindeki olayları JSONL formatında kayıt altına alır. Her satır tek bir olayı temsil eder ve timestamp, role, event, session id, sequence number ve ilgili ek alanları içerir. Bu format hem insan tarafından okunabilir hem de analiz araçları tarafından kolayca işlenebilir.
-
-Kaydedilen temel olaylar şunlardır:
-
-| Olay | Açıklama |
+| Senaryo | Parametreler |
 | --- | --- |
-| packet_sent | Client tarafında START, DATA veya END paketi gönderildi. |
-| packet_received | Server tarafında DATA paketi alındı. |
-| ack_sent | Server ilgili paket için ACK gönderdi. |
-| ack_received | Client ilgili ACK'i aldı. |
-| timeout | Client belirlenen sürede ACK alamadı. |
-| packet_dropped_simulated | Yapay kayıp modülü paketi göndermedi. |
-| duplicate_packet | Server aynı sequence number değerini ikinci kez aldı. |
-| transfer_completed | Aktarım ve hash doğrulaması başarıyla tamamlandı. |
-| transfer_failed | Max retry, eksik paket veya hash uyuşmazlığı nedeniyle aktarım başarısız oldu. |
+| Paket boyutu | 512, 1024, 2048, 4096 byte |
+| Timeout | 0.2, 0.5, 1.0, 1.5 s |
+| Kayıp oranı | 0%, 2%, 5%, 10% |
+| Dosya boyutu | 16 KB, 128 KB, 512 KB |
+| TCP karşılaştırması | Reliable UDP ve TCP |
 
-Bu loglar sayesinde yalnızca sonuç metrikleri değil, metriklere yol açan protokol davranışı da incelenebilir. Örneğin yüksek loss rate değerinde packet_dropped_simulated ve timeout sayılarının arttığı; bunun retransmission rate ve completion time değerlerini yükselttiği doğrudan gözlemlenebilir.
+Sonuçlar `outputs/experiments/results.csv`, grafikler `outputs/analysis/charts/` altında üretilir. Rapora eklenecek 5 SVG grafiği: paket boyutu, timeout, kayıp oranı, dosya boyutu ve TCP karşılaştırması.
 
-**Görsel Yerleşimi:** Bu bölümde web panelindeki canlı trafik logu ekran görüntüsü kullanılmalıdır. Ayrıca JSONL log dosyasından 5-6 satırlık küçük bir tablo kesiti Word içine eklenebilir. Önerilen başlıklar: "Şekil 5. Canlı trafik log paneli" ve "Tablo 3. Örnek JSONL olay kayıtları".
+**Görsel:** Modül diyagramı, CLI aktarım ekran görüntüsü, canlı log paneli ve analiz grafikleri.
 
-## 8. Deney Ortamı
+## 8. Sonuç ve Tartışma
 
-Deneyler yerel makinede loopback ağ arayüzü üzerinden çalıştırılmıştır. Gerçek ağda oluşabilecek paket kaybını kontrollü şekilde incelemek için istemci tarafında yapay loss/delay simülatörü kullanılmıştır. Böylece aynı deney parametreleri tekrar çalıştırıldığında benzer sonuçlar üretilebilir.
+Deneyler; sequence number, ACK, timeout ve retransmission mekanizmalarının birlikte çalışması gerektiğini göstermiştir. Selective Repeat düşük kayıplı ortamda daha verimlidir; kayıp ve timeout arttıkça süre uzar, goodput düşer.
 
-Deneylerde kullanılan temel senaryolar:
+Karşılaşılan başlıca sorunlar ACK/timeout, sequence tabanlı duplicate yönetimi, yapay simülatör ve otomatik CSV/grafik üretimi ile giderilmiştir.
 
-| Senaryo | Değiştirilen Parametreler | Amaç |
-| --- | --- | --- |
-| Paket boyutu etkisi | 512, 1024, 2048, 4096 byte | Header yükü ve paket sayısının throughput/goodput etkisini görmek |
-| Timeout etkisi | 0.2, 0.5, 1.0, 1.5 saniye | Gereksiz retransmission ve bekleme süresi dengesini yorumlamak |
-| Kayıp oranı etkisi | 0%, 2%, 5%, 10% | Paket kaybının retry, goodput ve completion time etkisini ölçmek |
-| Dosya boyutu etkisi | 16 KB, 128 KB, 512 KB | Dosya büyüklüğünün verimlilik üzerindeki etkisini gözlemlemek |
-| TCP karşılaştırması | Reliable UDP ve TCP | Uygulama katmanı güvenilirlik yaklaşımını TCP baseline ile karşılaştırmak |
+NetProbe, UDP üzerinde güvenilir aktarımı uygulama katmanında gösterir. Gelecekte adaptif timeout, congestion control, çoklu istemci, Wireshark entegrasyonu ve gerçek ağ deneyleri eklenebilir.
 
-**Görsel Yerleşimi:** Bu bölümde deney matrisi tablosu mutlaka kullanılmalıdır. Ek olarak `data/sample_files` veya `outputs/sample_files` klasöründeki dosya boyutlarını gösteren küçük tablo eklenmelidir. Görsel ekran görüntüsü gerekmiyorsa tablo yeterlidir.
+**Görsel:** Başarılı hash doğrulama ve isteğe bağlı max retry failure ekran görüntüsü.
 
-## 9. Performans Metrikleri
-
-Bu projede kullanılan ana performans metrikleri şunlardır:
-
-| Metrik | Tanım |
-| --- | --- |
-| Throughput | Uygulama seviyesinde gönderilen toplam byte miktarının süreye oranıdır. Retransmission paketlerini de etkiler. |
-| Goodput | Başarıyla aktarılan faydalı dosya verisinin süreye oranıdır. |
-| Completion time | START ile RESULT arasında geçen toplam süredir. |
-| Packet loss rate | Simüle edilen kayıp paketlerin toplam gönderim girişimlerine oranıdır. |
-| Retransmission rate | Yeniden gönderilen paket sayısının toplam veri paketlerine oranıdır. |
-| Average RTT | DATA gönderimi ile ACK alımı arasında ölçülen ortalama süredir. |
-
-Throughput ve goodput birlikte yorumlanmalıdır. Örneğin retransmission arttığında ağ üzerinden daha fazla byte gönderildiği için throughput yüksek görünebilir, ancak faydalı veri aktarım verimi düştüğü için goodput azalabilir. Bu nedenle yalnızca throughput değerine bakmak protokol başarımını doğru yorumlamak için yeterli değildir.
-
-**Görsel Yerleşimi:** Bu bölümde görsel yerine metrik formüllerini içeren sade bir tablo kullanılmalıdır. İstenirse throughput ve goodput farkını gösteren küçük bir açıklama diyagramı eklenebilir.
-
-## 10. Performans Sonuçları
-
-Deney çıktıları `outputs/experiments/results.csv` dosyasında saklanır. Grafikler `outputs/analysis/charts/` klasöründe SVG olarak üretilir. Word raporuna aşağıdaki grafikler bu sırayla eklenmelidir. Word sürümünüz SVG eklemeyi desteklemiyorsa SVG dosyasını tarayıcıda açıp ekran görüntüsü olarak rapora koyabilirsiniz.
-
-### 10.1. Paket Boyutunun Etkisi
-
-Paket boyutu arttıkça aynı dosya daha az sayıda DATA paketiyle gönderilir. Bu durumda her paket için eklenen header yükünün toplam veriye oranı azalır. Bu nedenle kayıpsız veya düşük kayıplı ortamda throughput ve goodput değerlerinin artması beklenir. Ancak paket boyutu çok büyüdüğünde tek bir paket kaybının yeniden gönderim maliyeti de artar.
-
-**Görsel Yerleşimi:** `outputs/analysis/charts/packet-size-throughput-goodput.svg` grafiğini bu alt başlığın altına koyun. Grafik altında şu yorumu ekleyin: "Payload boyutu arttığında protokol overhead'i azalmış, fakat kayıp durumunda büyük paketlerin yeniden gönderim maliyeti dikkate alınmalıdır."
-
-### 10.2. Timeout Değerinin Etkisi
-
-Timeout değeri düşük seçilirse, ACK gecikmeleri gerçek paket kaybı gibi algılanabilir. Bu durum gereksiz retransmission sayısını artırır. Timeout değeri çok yüksek seçilirse, gerçekten kaybolan paketler geç fark edilir ve completion time artar. Bu nedenle timeout değeri, ağ gecikmesi ile yeniden gönderim maliyeti arasında denge kurmalıdır.
-
-**Görsel Yerleşimi:** `outputs/analysis/charts/timeout-retransmission-rate.svg` grafiğini bu alt başlığın altına koyun. Grafik altında timeout değerinin retransmission rate üzerindeki etkisini 3-4 cümleyle yorumlayın.
-
-### 10.3. Yapay Kayıp Oranının Etkisi
-
-Kayıp oranı arttıkça daha fazla DATA paketi ACK alamadan timeout'a düşer. Bu durum retransmission sayısını artırır, aktarım süresini uzatır ve goodput değerini düşürür. NetProbe bu davranışı packet_dropped_simulated, timeout ve packet_sent olayları üzerinden açıkça loglar.
-
-**Görsel Yerleşimi:** `outputs/analysis/charts/loss-completion-time.svg` grafiğini bu alt başlığın altına koyun. Grafik altında yüksek loss rate değerlerinin completion time üzerindeki etkisini açıklayın.
-
-### 10.4. Dosya Boyutunun Etkisi
-
-Küçük dosyalarda START, END, RESULT ve ACK gibi kontrol paketlerinin toplam aktarıma oranı daha yüksektir. Büyük dosyalarda bu sabit maliyet daha geniş veri miktarına yayıldığı için goodput daha dengeli hale gelir. Ancak dosya boyutu arttıkça toplam completion time da doğal olarak artar.
-
-**Görsel Yerleşimi:** `outputs/analysis/charts/file-size-goodput.svg` grafiğini bu alt başlığın altına koyun. Grafik altında küçük ve büyük dosya davranışını karşılaştırın.
-
-### 10.5. Reliable UDP ve TCP Karşılaştırması
-
-TCP, işletim sistemi tarafından optimize edilen olgun güvenilirlik mekanizmalarına sahiptir. NetProbe ise güvenilirliği uygulama katmanında gösterilebilir ve ölçülebilir şekilde kurar. Bu nedenle TCP karşılaştırması, NetProbe'un TCP'den hızlı olduğunu iddia etmek için değil; UDP üzerinde güvenilirlik mekanizmalarının nasıl tasarlandığını göstermek için kullanılmıştır.
-
-**Görsel Yerleşimi:** `outputs/analysis/charts/reliable-udp-vs-tcp.svg` grafiğini bu alt başlığın altına koyun. Grafik altında TCP'nin yerleşik mekanizmaları ile uygulama katmanı reliable UDP yaklaşımı teknik olarak karşılaştırılmalıdır.
-
-## 11. Sonuçlar ve Tartışma
-
-Deneyler, UDP üzerinde güvenilir aktarım sağlamak için sequence number, ACK, timeout ve retransmission mekanizmalarının birlikte çalışması gerektiğini göstermiştir. Selective Repeat sliding window yaklaşımı, stop-and-wait'e göre aynı anda birden fazla paketin beklemede kalmasına izin verdiği için özellikle kayıpsız veya düşük kayıplı koşullarda daha yüksek verim sağlar.
-
-Yapay kayıp oranı artırıldığında timeout ve retransmission olaylarının arttığı gözlemlenmiştir. Bu durum completion time değerini yükseltirken goodput değerini düşürür. Timeout parametresi ise protokolün tepkisini doğrudan etkiler. Çok küçük timeout gereksiz retransmission oluşturabilir; çok büyük timeout ise gerçek kayıpların geç fark edilmesine neden olur.
-
-Paket boyutu deneyleri, header overhead'i ile yeniden gönderim maliyeti arasındaki dengeyi göstermiştir. Daha büyük payload değerleri kontrol yükünü azaltır, fakat kayıp durumunda daha büyük veri parçalarının tekrar gönderilmesine neden olur. Dosya boyutu deneyleri ise sabit kontrol maliyetlerinin büyük dosyalarda daha az etkili olduğunu göstermiştir.
-
-**Görsel Yerleşimi:** Bu bölümde yeni grafik eklemek yerine önceki grafiklerden en önemli iki tanesine kısa referans verilebilir. Word raporunda bu bölüm metin ağırlıklı tutulmalıdır.
-
-## 12. Karşılaşılan Sorunlar ve Çözüm Yaklaşımları
-
-İlk önemli sorun, UDP'nin bağlantısız yapısı nedeniyle göndericinin paketin ulaşıp ulaşmadığını bilememesidir. Bu sorun ACK mekanizması ve timeout kontrolü ile çözülmüştür.
-
-İkinci sorun, paketlerin sırasız veya tekrar gelebilmesidir. Bu durum sequence number ve sunucu tarafındaki session buffer yapısı ile çözülmüştür. Duplicate paket geldiğinde payload ikinci kez yazılmamış, sadece ACK tekrar gönderilmiştir.
-
-Üçüncü sorun, deneylerin tekrar üretilebilir olmasıdır. Gerçek ağda paket kaybı kontrol edilemediği için yapay loss/delay simülatörü eklenmiştir. Bu sayede aynı kayıp oranı ve seed değeriyle benzer deney sonuçları alınabilir.
-
-Dördüncü sorun, rapor için ölçüm ve görsel üretiminin manuel yapılmasının hata riski taşımasıdır. Bu nedenle deney sonuçları CSV/JSON olarak saklanmış, grafikler otomatik üretilmiş ve rapora aktarılacak görseller belirli klasörlerde toplanmıştır.
-
-**Görsel Yerleşimi:** Bu bölümde max retry failure ekran görüntüsü kullanılmalıdır. Web panelde loss rate 1.0 ve max retry düşük seçilerek başarısız aktarım üretilir. Ekran görüntüsünde hata mesajı ve log tablosundaki timeout/transfer_failed olayları görünmelidir.
-
-## 13. Sonuç ve Gelecekte Yapılabilecek Geliştirmeler
-
-NetProbe projesi, UDP üzerinde güvenilir dosya aktarımı için gerekli temel mekanizmaları uygulama katmanında gerçekleştirmiştir. Sistem dosyayı parçalara ayırır, her parçayı sequence number ile takip eder, ACK yanıtlarını işler, timeout durumunda yeniden gönderim yapar, duplicate paketleri ayıklar ve aktarım sonunda SHA-256 ile bütünlük doğrulaması yapar.
-
-Proje aynı zamanda ağ olaylarını loglayarak performans analizine temel oluşturur. Paket boyutu, timeout, loss rate, dosya boyutu ve TCP karşılaştırması gibi senaryolarla protokol davranışı ölçülebilir hale getirilmiştir. Web paneli sayesinde demo sırasında aktarım parametreleri değiştirilebilir ve log akışı canlı olarak izlenebilir.
-
-Gelecekte yapılabilecek geliştirmeler arasında adaptif timeout hesaplama, congestion control yaklaşımı, çoklu istemci için daha gelişmiş session yönetimi, pcap/Wireshark entegrasyonu, şifreleme, sıkıştırma ve gerçek laboratuvar ağı üzerinde ek deneyler yer alabilir.
-
-**Görsel Yerleşimi:** Son bölümde başarılı hash doğrulama ekran görüntüsü kullanılmalıdır. CLI veya web panelde status success, client SHA-256 ve server SHA-256 değerlerinin eşleştiği alan net görünmelidir.
-
-## 14. Grup İçi Görev Dağılımı
+## 9. Grup ve Ekler
 
 | Üye | Sorumluluk |
 | --- | --- |
-| Üye 1 | UDP protokol tasarımı, client/server aktarım mantığı, sequence/ACK/timeout mekanizması |
-| Üye 2 | Trafik loglama, deney otomasyonu, metrik hesaplama ve grafik üretimi |
-| Üye 3 | Web UI, rapor düzeni, demo hazırlığı ve teslim paketi kontrolü |
+| Üye 1 | Protokol, client/server, ACK/timeout |
+| Üye 2 | Loglama, deney, metrik, grafik |
+| Üye 3 | Web UI, rapor, demo ve teslim |
 
-Grup üyeleri geliştirme sürecinde ortak test ve doğrulama yapmıştır. Özellikle hash doğrulama, duplicate paket davranışı, max retry başarısızlığı ve deney grafiklerinin rapor yorumları tüm grup tarafından kontrol edilmiştir.
-
-## 15. Ekler
-
-Ek olarak README, komut satırı çıktıları, örnek JSONL log dosyaları, deney CSV dosyası ve web panel ekran görüntüleri teslim paketinde sunulmalıdır.
-
-**Ek Görsel Listesi:**
-
-1. Web dashboard genel görünümü
-2. Transfer paneli başarılı aktarım ekran görüntüsü
-3. Canlı log tablosu ekran görüntüsü
-4. CLI başarılı aktarım ekran görüntüsü
-5. Max retry failure ekran görüntüsü
-6. Paket boyutu grafiği
-7. Timeout grafiği
-8. Loss rate grafiği
-9. Dosya boyutu grafiği
-10. Reliable UDP vs TCP grafiği
+Teslim paketi: kaynak kod, README, JSONL loglar, deney CSV dosyası, web ekran görüntüleri ve analiz grafikleri.

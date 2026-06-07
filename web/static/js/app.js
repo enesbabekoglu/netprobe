@@ -12,9 +12,15 @@ const state = {
 
 const $ = (id) => document.getElementById(id);
 
-function setBusy(value, label = "Calisiyor") {
+function setBusy(value, label = "Çalışıyor") {
   state.busy = value;
-  $("busyText").textContent = value ? label : "Hazir";
+  $("busyText").lastChild.textContent = value ? label : "Hazır";
+  const busyIcon = $("busyIcon");
+  busyIcon.dataset.icon = value ? "busy" : "status";
+  busyIcon.classList.toggle("np-icon-spin", value);
+  if (window.mountNPIcons) {
+    busyIcon.innerHTML = window.NPIcons[busyIcon.dataset.icon] || "";
+  }
   document.querySelectorAll("button[data-action]").forEach((button) => {
     button.disabled = value;
   });
@@ -38,7 +44,7 @@ function renderSamples(samples) {
   const select = $("sample");
   const current = select.value;
   select.innerHTML = samples.map((sample) => (
-    `<option value="${sample.name}">${sample.name} (${formatBytes(sample.size)})${sample.kind === "uploaded" ? " · yuklenen" : ""}</option>`
+    `<option value="${sample.name}">${sample.name} (${formatBytes(sample.size)})${sample.kind === "uploaded" ? " · yüklenen" : ""}</option>`
   )).join("");
   if (current) select.value = current;
 }
@@ -57,7 +63,7 @@ function renderEvents(events) {
   state.eventsKey = key;
   if (!events.length) {
     body.innerHTML = `<tr class="border-t border-neutral-200">
-      <td colspan="4" class="px-3 py-6 text-center text-sm text-neutral-500">Henuz olay yok. Transfer Baslat'a bastiginizda packet_sent, ack_received ve transfer_completed olaylari burada gorunur.</td>
+      <td colspan="4" class="px-3 py-6 text-center text-sm text-neutral-500">Henüz olay yok. Transfer Başlat'a bastığınızda packet_sent, ack_received ve transfer_completed olayları burada görünür.</td>
     </tr>`;
     return;
   }
@@ -83,7 +89,7 @@ function renderCharts(charts) {
   state.chartsKey = key;
   const grid = $("chartGrid");
   if (!charts.length) {
-    grid.innerHTML = `<div class="rounded-md border border-dashed border-neutral-300 p-6 text-sm text-neutral-500">Henuz grafik yok. Deneyleri calistirip analiz uretin.</div>`;
+    grid.innerHTML = `<div class="rounded-md border border-dashed border-neutral-300 p-6 text-sm text-neutral-500">Henüz grafik yok. Deneyleri çalıştırıp analiz üretin.</div>`;
     return;
   }
   grid.innerHTML = charts.map((chart) => (
@@ -95,7 +101,8 @@ function renderCharts(charts) {
 }
 
 function renderServer(server) {
-  $("serverStatus").textContent = server.running ? `UDP ${server.host}:${server.port}` : "Kapali";
+  const label = server.running ? `UDP ${server.host}:${server.port}` : "Kapalı";
+  $("serverStatus").lastChild.textContent = label;
 }
 
 function renderResult(result) {
@@ -126,10 +133,10 @@ function applyStatus(data) {
 
 function setStreamStatus(label, active = false) {
   const node = $("streamStatus");
-  node.textContent = label;
+  node.lastChild.textContent = label;
   node.className = active
-    ? "rounded-md border border-neutral-950 bg-neutral-950 px-3 py-2 font-semibold text-white"
-    : "rounded-md border border-neutral-300 px-3 py-2 font-semibold text-neutral-900";
+    ? "inline-flex items-center gap-2 rounded-md border border-neutral-950 bg-neutral-950 px-3 py-2 font-semibold text-white"
+    : "inline-flex items-center gap-2 rounded-md border border-neutral-300 px-3 py-2 font-semibold text-neutral-900";
 }
 
 function connectEventStream() {
@@ -137,10 +144,10 @@ function connectEventStream() {
   const protocol = window.location.protocol === "https:" ? "wss" : "ws";
   const socket = new WebSocket(`${protocol}://${window.location.host}/ws/events`);
   state.socket = socket;
-  setStreamStatus("WS baglaniyor");
+  setStreamStatus("WS bağlanıyor");
 
   socket.addEventListener("open", () => {
-    setStreamStatus("WS canli", true);
+    setStreamStatus("WS canlı", true);
   });
 
   socket.addEventListener("message", (event) => {
@@ -164,7 +171,7 @@ function connectEventStream() {
 }
 
 async function runTransfer() {
-  setBusy(true, "Transfer calisiyor");
+  setBusy(true, "Transfer çalışıyor");
   try {
     const payload = {
       sample: $("sample").value,
@@ -191,10 +198,10 @@ async function runTransfer() {
 async function uploadFile() {
   const input = $("uploadFile");
   if (!input.files.length) {
-    $("lastMessage").textContent = "Once bir dosya sec.";
+    $("lastMessage").textContent = "Önce bir dosya seç.";
     return;
   }
-  setBusy(true, "Dosya yukleniyor");
+  setBusy(true, "Dosya yükleniyor");
   try {
     const form = new FormData();
     form.append("file", input.files[0]);
@@ -204,10 +211,10 @@ async function uploadFile() {
     });
     const data = await response.json();
     if (!data.ok) {
-      $("lastMessage").textContent = data.message || "Dosya yuklenemedi";
+      $("lastMessage").textContent = data.message || "Dosya yüklenemedi";
       return;
     }
-    $("lastMessage").textContent = `${data.file.name} listeye eklendi. Simdi Transfer Baslat'a bas.`;
+    $("lastMessage").textContent = `${data.file.name} listeye eklendi. Şimdi Transfer Başlat'a bas.`;
     await refreshStatus();
     $("sample").value = data.file.name;
     input.value = "";
@@ -217,7 +224,7 @@ async function uploadFile() {
 }
 
 async function runExperiments() {
-  setBusy(true, "Deneyler calisiyor");
+  setBusy(true, "Deneyler çalışıyor");
   try {
     await fetch("/api/experiments", {
       method: "POST",
@@ -231,7 +238,7 @@ async function runExperiments() {
 }
 
 async function buildAnalysis() {
-  setBusy(true, "Analiz uretiliyor");
+  setBusy(true, "Analiz üretiliyor");
   try {
     await fetch("/api/analysis", { method: "POST" });
     await refreshStatus();
@@ -241,6 +248,7 @@ async function buildAnalysis() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  if (window.mountNPIcons) window.mountNPIcons();
   $("transferButton").addEventListener("click", runTransfer);
   $("uploadButton").addEventListener("click", uploadFile);
   $("experimentButton").addEventListener("click", runExperiments);

@@ -171,7 +171,7 @@ def build_analysis(output_dir: str | Path = OUTPUT_DIR) -> Path:
             timeout_rows,
             "timeout",
             ["retransmission_rate"],
-            "Timeout Degerinin Retransmission Oranina Etkisi",
+            "Timeout Değerinin Retransmission Oranına Etkisi",
             "Timeout (saniye)",
             "Retransmission rate",
             output,
@@ -185,7 +185,7 @@ def build_analysis(output_dir: str | Path = OUTPUT_DIR) -> Path:
             loss_rows,
             "loss_rate",
             ["completion_time"],
-            "Yapay Paket Kaybinin Tamamlanma Suresine Etkisi",
+            "Yapay Paket Kaybının Tamamlanma Süresine Etkisi",
             "Loss rate",
             "Saniye",
             output,
@@ -201,7 +201,7 @@ def build_analysis(output_dir: str | Path = OUTPUT_DIR) -> Path:
             file_rows,
             "file_label",
             "goodput_mbps",
-            "Dosya Boyutunun Goodput Uzerindeki Etkisi",
+            "Dosya Boyutunun Goodput Üzerindeki Etkisi",
             "Dosya",
             "Goodput (Mbps)",
             output,
@@ -218,7 +218,7 @@ def build_analysis(output_dir: str | Path = OUTPUT_DIR) -> Path:
             compare_rows,
             "protocol_label",
             "goodput_mbps",
-            "Reliable UDP ve TCP Goodput Karsilastirmasi",
+            "Reliable UDP ve TCP Goodput Karşılaştırması",
             "Protokol",
             "Goodput (Mbps)",
             output,
@@ -242,27 +242,27 @@ def _build_summary(rows: list[dict[str, str]], generated: list[Path]) -> str:
     chart_list = "\n".join(f"- `{path}`" for path in generated)
     return f"""# NetProbe Deney Analizi
 
-Bu dosya `python -m netprobe.analysis build` komutu ile otomatik uretilmistir. Grafikler Word raporuna aktarilmak uzere `outputs/analysis/charts/` klasorunde SVG olarak tutulur.
+Bu dosya `python -m netprobe.analysis build` komutu ile otomatik üretilmiştir. Grafikler Word raporuna aktarılmak üzere `outputs/analysis/charts/` klasöründe SVG olarak tutulur.
 
-## Genel Ozet
+## Genel Özet
 
-- Basarili deney sayisi: {len(successful)} / {len(rows)}
+- Başarılı deney sayısı: {len(successful)} / {len(rows)}
 - Ortalama goodput: {avg_goodput:.3f} Mbps
 - Ortalama retransmission rate: {avg_retrans:.3f}
 
 ## Teknik Yorumlar
 
-Paket boyutu arttikca header yuku dosya verisine oranla azalir. Bu nedenle orta ve buyuk payload degerlerinde goodput genellikle yukselir; ancak cok buyuk paketlerde tek kaybin yeniden aktarim maliyeti arttigi icin kayipli ortamda kazanc sinirlanabilir.
+Paket boyutu arttıkça header yükü dosya verisine oranla azalır. Bu nedenle orta ve büyük payload değerlerinde goodput genellikle yükselir; ancak çok büyük paketlerde tek kaybın yeniden aktarım maliyeti arttığı için kayıplı ortamda kazanç sınırlanabilir.
 
-Timeout degeri kucuk secildiginde ACK gecikmeleri gercek paket kaybi gibi algilanabilir ve gereksiz retransmission olusabilir. Timeout cok buyuk secildiginde ise gercek kayiplar gec fark edilir; bu da completion time degerini artirir.
+Timeout değeri küçük seçildiğinde ACK gecikmeleri gerçek paket kaybı gibi algılanabilir ve gereksiz retransmission oluşabilir. Timeout çok büyük seçildiğinde ise gerçek kayıplar geç fark edilir; bu da completion time değerini artırır.
 
-Yapay kayip orani arttikca sender ayni sequence number icin yeniden gonderim yapmak zorunda kalir. Bu durum bytes_on_wire ve completion_time degerlerini artirirken goodput degerini dusurur.
+Yapay kayıp oranı arttıkça sender aynı sequence number için yeniden gönderim yapmak zorunda kalır. Bu durum bytes_on_wire ve completion_time değerlerini artırırken goodput değerini düşürür.
 
-Dosya boyutu buyudukce baslangic/bitis kontrol paketlerinin etkisi azalir. Bu nedenle buyuk dosyalarda protokol daha verimli gorunur; fakat toplam aktarim suresi dogal olarak artar.
+Dosya boyutu büyüdükçe başlangıç/bitiş kontrol paketlerinin etkisi azalır. Bu nedenle büyük dosyalarda protokol daha verimli görünür; fakat toplam aktarım süresi doğal olarak artar.
 
-TCP karsilastirmasi, isletim sisteminin olgun TCP kontrol mekanizmalarina karsi uygulama katmaninda yazilan reliable UDP protokolunun davranisini yorumlamak icin eklenmistir. NetProbe'un amaci TCP'yi gecmek degil; UDP uzerinde ACK, timeout ve retransmission mekanizmalarinin nasil kuruldugunu gostermektir.
+TCP karşılaştırması, işletim sisteminin olgun TCP kontrol mekanizmalarına karşı uygulama katmanında yazılan reliable UDP protokolünün davranışını yorumlamak için eklenmiştir. NetProbe'un amacı TCP'yi geçmek değil; UDP üzerinde ACK, timeout ve retransmission mekanizmalarının nasıl kurulduğunu göstermektir.
 
-## Uretilen Grafikler
+## Üretilen Grafikler
 
 {chart_list}
 """

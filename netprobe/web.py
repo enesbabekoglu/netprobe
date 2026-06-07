@@ -140,9 +140,9 @@ def create_app() -> Flask:
         }
         source = sample_map.get(sample_name)
         if source is None:
-            return jsonify({"ok": False, "message": f"unknown sample file: {sample_name}"}), 400
+            return jsonify({"ok": False, "message": f"Bilinmeyen örnek dosya: {sample_name}"}), 400
         if manager is None:
-            return jsonify({"ok": False, "message": "embedded UDP server is not running"}), 500
+            return jsonify({"ok": False, "message": "Gömülü UDP sunucusu çalışmıyor"}), 500
 
         config = TransferConfig(
             host="127.0.0.1",
@@ -162,7 +162,7 @@ def create_app() -> Flask:
     def upload():
         uploaded = request.files.get("file")
         if uploaded is None or not uploaded.filename:
-            return jsonify({"ok": False, "message": "file field is required"}), 400
+            return jsonify({"ok": False, "message": "Dosya alanı zorunludur"}), 400
         UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
         file_name = safe_filename(uploaded.filename)
         destination = UPLOAD_DIR / file_name
