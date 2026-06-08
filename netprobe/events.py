@@ -1,4 +1,4 @@
-"""İstemci, sunucu ve panel canlı akışları için JSONL olay günlüğü."""
+"""İstemci, sunucu ve panel canlı akışları için JSONL olay logu."""
 
 from __future__ import annotations
 
